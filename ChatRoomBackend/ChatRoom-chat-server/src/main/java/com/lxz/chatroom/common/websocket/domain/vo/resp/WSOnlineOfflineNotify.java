@@ -1,0 +1,23 @@
+package com.lxz.chatroom.common.websocket.domain.vo.resp;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @description
+ * @author LuoXizhen
+ * @date 2025-09-21
+ */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class WSOnlineOfflineNotify {
+    private List<ChatMemberResp> changeList = new ArrayList<>();//新的上下线用户
+    private Long onlineNum;//在线人数
+}

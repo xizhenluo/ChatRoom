@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    #environment
+    active: test
+  application:
+    name: mallchat
+  datasource:
+    url: jdbc:mysql://${mallchat.mysql.ip}:${mallchat.mysql.port}/${mallchat.mysql.db}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: ${mallchat.mysql.username}
+    password: ${mallchat.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    # Redis server addr
+    host: ${mallchat.redis.host}
+    # Redis server port
+    port: ${mallchat.redis.port}
+    # database index, default 0
+    database: 0
+    # timeout threshold
+    timeout: 1800000
+    # password
+    password: ${mallchat.redis.password}
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
