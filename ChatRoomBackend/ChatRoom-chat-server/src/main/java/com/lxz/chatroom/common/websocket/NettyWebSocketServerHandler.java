@@ -1,8 +1,10 @@
 package com.lxz.chatroom.common.websocket;
 
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
 import com.lxz.chatroom.common.websocket.domain.enums.WSReqTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.req.WSBasicReq;
+import com.lxz.chatroom.common.websocket.service.WebSocketService;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -10,6 +12,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @description
@@ -18,6 +21,15 @@ import io.netty.handler.timeout.IdleStateEvent;
  */
 @ChannelHandler.Sharable
 public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+    private WebSocketService webSocketService;
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        webSocketService = SpringUtil.getBean(WebSocketService.class);
+        webSocketService.connect(ctx.channel());
+    }
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if(evt instanceof WebSocketServerProtocolHandler.HandshakeComplete){
@@ -26,7 +38,9 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
                 System.out.println("read idle state");
-                // ws connection will automatically close, so here to do: user offline
+                // close ws connection
+                ctx.channel().close();
+                // todo: user offline
             }
         }
     }
@@ -37,8 +51,7 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
         WSBasicReq wsBasicReq = JSONUtil.toBean(message, WSBasicReq.class);
         switch (WSReqTypeEnum.of(wsBasicReq.getType())) {
             case LOGIN:
-                System.out.println("QR");
-                ctx.channel().writeAndFlush(new TextWebSocketFrame("123")); // return data to frontend
+                webSocketService.handleLoginRequest(ctx.channel());
                 break;
             case HEARTBEAT:
                 System.out.println("HEARTBEAT");

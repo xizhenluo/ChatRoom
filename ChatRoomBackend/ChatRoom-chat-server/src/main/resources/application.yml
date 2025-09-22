@@ -5,21 +5,31 @@ spring:
   application:
     name: mallchat
   datasource:
-    url: jdbc:mysql://${mallchat.mysql.ip}:${mallchat.mysql.port}/${mallchat.mysql.db}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: ${mallchat.mysql.username}
-    password: ${mallchat.mysql.password}
+    url: jdbc:mysql://${chatroom.mysql.ip}:${chatroom.mysql.port}/${chatroom.mysql.db}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: ${chatroom.mysql.username}
+    password: ${chatroom.mysql.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
     # Redis server addr
-    host: ${mallchat.redis.host}
+    host: ${chatroom.redis.host}
     # Redis server port
-    port: ${mallchat.redis.port}
+    port: ${chatroom.redis.port}
     # database index, default 0
     database: 0
     # timeout threshold
     timeout: 1800000
     # password
-    password: ${mallchat.redis.password}
+    password: ${chatroom.redis.password}
   jackson:
     serialization:
       write-dates-as-timestamps: true
+
+wx:
+  mp:
+    #    callback: http://f4cd-113-92-129-127.ngrok.io
+    callback: ${chatroom.wx.callback}
+    configs:
+      - appId: ${chatroom.wx.appId} # 第一个公众号的appid
+        secret: ${chatroom.wx.secret} # 公众号的appsecret
+        token: ${chatroom.wx.token} # 接口配置里的Token值
+        aesKey: ${chatroom.wx.aesKey} # 接口配置里的EncodingAESKey值
