@@ -1,6 +1,7 @@
 package com.lxz.chatroom.common.user.controller;
 
 //import com.lxz.chatroom.common.user.service.WxMsgService;
+import com.lxz.chatroom.common.user.service.WxMsgService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -24,7 +25,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Slf4j
 @AllArgsConstructor
 @RestController
-@RequestMapping("wx/portal/public")
+@RequestMapping("/wx/portal/public")
 public class WxPortalController {
 
     private final WxMpService wxService;
@@ -32,6 +33,9 @@ public class WxPortalController {
 //    private final WxMsgService wxMsgService;
     @Autowired
     private WxMpService wxMpService;
+
+    @Autowired
+    private WxMsgService wxMsgService;
 
     @GetMapping("/test")
     public void getQRCode(@RequestParam Integer code) throws WxErrorException {
@@ -62,20 +66,17 @@ public class WxPortalController {
 
     @GetMapping("/callBack")
     public RedirectView callBack(@RequestParam String code) throws WxErrorException {
-//        try {
-//            WxOAuth2AccessToken accessToken = wxService.getOAuth2Service().getAccessToken(code);
-//            WxOAuth2UserInfo userInfo = wxService.getOAuth2Service().getUserInfo(accessToken, "zh_CN");
-////            wxMsgService.authorize(userInfo);
-//        } catch (Exception e) {
-//            log.error("callBack error", e);
-//        }
-//        RedirectView redirectView = new RedirectView();
-//        redirectView.setUrl("https://mp.weixin.qq.com/s/m1SRsBG96kLJW5mPe4AVGA");
-//        return redirectView;
-        WxOAuth2AccessToken accessToken = wxService.getOAuth2Service().getAccessToken(code);
-        WxOAuth2UserInfo userInfo = wxService.getOAuth2Service().getUserInfo(accessToken, "zh_CN");
-        System.out.println(userInfo);
-        return null;
+        try {
+            WxOAuth2AccessToken accessToken = wxService.getOAuth2Service().getAccessToken(code);
+            WxOAuth2UserInfo userInfo = wxService.getOAuth2Service().getUserInfo(accessToken, "zh_CN");
+            wxMsgService.authorize(userInfo);
+        } catch (Exception e) {
+            log.error("callback error", e);
+        }
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("https://www.mallchat.cn"); // https://132.232.210.147
+//        System.out.println(userInfo);
+        return redirectView;
     }
 
     @PostMapping(produces = "application/xml; charset=UTF-8")

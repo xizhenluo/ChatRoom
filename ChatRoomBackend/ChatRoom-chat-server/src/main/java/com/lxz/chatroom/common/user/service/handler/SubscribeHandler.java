@@ -25,7 +25,7 @@ public class SubscribeHandler extends AbstractHandler {
                                     Map<String, Object> context, WxMpService weixinService,
                                     WxSessionManager sessionManager) throws WxErrorException {
 
-        this.logger.info("新关注用户 OPENID: " + wxMessage.getFromUser());
+        this.logger.info("new subscription OPENID: " + wxMessage.getFromUser());
 
         WxMpXmlOutMessage responseResult = null;
         try {
@@ -39,7 +39,7 @@ public class SubscribeHandler extends AbstractHandler {
         }
 
         try {
-            return TextBuilder.build("感谢关注", wxMessage);
+            return TextBuilder.build("Thanks for subscription!", wxMessage);
         } catch (Exception e) {
             this.logger.error(e.getMessage(), e);
         }

@@ -26,7 +26,6 @@ spring:
 
 wx:
   mp:
-    #    callback: http://f4cd-113-92-129-127.ngrok.io
     callback: ${chatroom.wx.callback}
     configs:
       - appId: ${chatroom.wx.appId} # 第一个公众号的appid

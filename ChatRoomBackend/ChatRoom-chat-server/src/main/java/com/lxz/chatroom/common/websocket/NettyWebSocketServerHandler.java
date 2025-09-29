@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.lxz.chatroom.common.websocket.domain.enums.WSReqTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.req.WSBasicReq;
 import com.lxz.chatroom.common.websocket.service.WebSocketService;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -31,6 +32,11 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        userOffline(ctx.channel());
+    }
+
+    @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if(evt instanceof WebSocketServerProtocolHandler.HandshakeComplete){
             System.out.println("handshake complete");
@@ -38,11 +44,20 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
                 System.out.println("read idle state");
-                // close ws connection
-                ctx.channel().close();
+                // should close ws connection
                 // todo: user offline
+//                userOffline(ctx.channel());
             }
         }
+    }
+
+    /**
+     * some dealings related to user offline
+     * @param channel
+     */
+    private void userOffline(Channel channel) {
+        webSocketService.remove(channel);
+        channel.close();
     }
 
     @Override

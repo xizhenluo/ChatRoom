@@ -4,6 +4,9 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.lxz.chatroom.common.user.dao.UserDao;
+import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.user.service.LoginService;
 import com.lxz.chatroom.common.websocket.domain.dto.WSChannelExtraDTO;
 import com.lxz.chatroom.common.websocket.domain.enums.WSRespTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBasicResp;
@@ -16,6 +19,7 @@ import lombok.SneakyThrows;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -45,7 +49,14 @@ public class WebSocketServiceImpl implements WebSocketService {
             .build();
 
     @Autowired
+    @Lazy
     private WxMpService wxMpService;
+
+    @Autowired
+    private LoginService loginService;
+
+    @Autowired
+    private UserDao userDao;
 
     @Override
     public void connect(Channel channel) {
@@ -63,6 +74,26 @@ public class WebSocketServiceImpl implements WebSocketService {
         sendMsg(channel, WebSocketAdapter.buildResp(wxMpQrCodeTicket));
     }
 
+    @Override
+    public void remove(Channel channel) {
+        ONLINE_WS_MAP.remove(channel); // remove those connections closed
+        // todo need to do when user offline (i.e. a broadcast)
+    }
+
+    @Override
+    public void scanLoginSuccess(Integer code, Long uid) {
+        // ensure that the connection exists
+        Channel channel = WAIT_LOGIN_MAP.getIfPresent(code);
+        if (Objects.isNull(channel)) { return; }
+        User user = userDao.getById(uid);
+        // remove the code
+        WAIT_LOGIN_MAP.invalidate(code);
+        // get token by calling login module
+        String token = loginService.login(uid);
+        // respond to user
+        sendMsg(channel, WebSocketAdapter.buildResp(user, token));
+    }
+
     private void sendMsg(Channel channel, WSBasicResp<?> resp) {
         channel.writeAndFlush(new TextWebSocketFrame(JSONUtil.toJsonStr(resp)));
     }
@@ -71,7 +102,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         Integer code;
         do {
             code = RandomUtil.randomInt(Integer.MAX_VALUE);
-        } while (Objects.isNull(WAIT_LOGIN_MAP.asMap().putIfAbsent(code, channel)));
+        } while (Objects.nonNull(WAIT_LOGIN_MAP.asMap().putIfAbsent(code, channel)));
         return code;
     }
 }
