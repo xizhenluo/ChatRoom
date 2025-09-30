@@ -1,14 +1,19 @@
 package com.lxz.chatroom.common;
 
-import com.lxz.chatroom.common.user.dao.UserDao;
-import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.common.utils.JwtUtils;
+import com.lxz.chatroom.common.common.utils.RedisUtils;
+import com.lxz.chatroom.common.user.service.LoginService;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -21,6 +26,32 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class DaoTest {
     @Autowired
     private WxMpService wxMpService;
+    @Autowired
+    private JwtUtils jwtUtils;
+    @Autowired
+    private RedissonClient redissonClient;
+    @Autowired
+    private LoginService loginService;
+
+    @Test
+    public void jwtTest() {
+        System.out.println(jwtUtils.createToken(1L));
+    }
+
+    @Test
+    public void redisTest() {
+        String testToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjExMDA3LCJjcmVhdGVUaW1lIjoxNzU5MjU3MDg4fQ.1MZgOBeYay8GrGc01AR3T6yywuNdO_hzU525Mbd132o";
+        Long validUid = loginService.getValidUid(testToken);
+        System.out.println(validUid);
+    }
+
+//    @Test
+//    public void redissonTest() {
+//        RLock lock = redissonClient.getLock("123");
+//        lock.lock();
+//        System.out.println();
+//        lock.unlock();
+//    }
 
     @Test
     public void test() throws WxErrorException {

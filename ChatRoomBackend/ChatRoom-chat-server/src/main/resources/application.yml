@@ -32,3 +32,6 @@ wx:
         secret: ${chatroom.wx.secret} # 公众号的appsecret
         token: ${chatroom.wx.token} # 接口配置里的Token值
         aesKey: ${chatroom.wx.aesKey} # 接口配置里的EncodingAESKey值
+
+jwt:
+  secret: ${chatroom.jwt.secret}

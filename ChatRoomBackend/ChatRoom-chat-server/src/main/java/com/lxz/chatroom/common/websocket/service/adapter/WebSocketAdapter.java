@@ -32,4 +32,10 @@ public class WebSocketAdapter {
         resp.setData(loginSuccess);
         return resp;
     }
+
+    public static WSBasicResp<?> buildWaitAuthorizationResp() {
+        WSBasicResp<Void> resp = new WSBasicResp<>();
+        resp.setType(WSRespTypeEnum.LOGIN_SCAN_SUCCESS.getType());
+        return resp;
+    }
 }

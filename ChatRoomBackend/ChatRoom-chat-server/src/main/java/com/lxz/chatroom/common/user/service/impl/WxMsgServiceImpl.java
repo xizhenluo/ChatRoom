@@ -73,7 +73,8 @@ public class WxMsgServiceImpl implements WxMsgService {
         }
 
         // push a link to let user authorize
-        WAIT_AUTHORIZATION_MAP.put(openId, code);
+        WAIT_AUTHORIZATION_MAP.put(openId, code); // should record code and openId before user authorize
+        webSocketService.waitAuthorization(code);
         String authorizedURL = String.format(URL, wxMpService.getWxMpConfigStorage().getAppId(), URLEncoder.encode(callback + "/wx/portal/public/callBack"));
         return TextBuilder.build("please click to login: <a href=\"" + authorizedURL + "\">login</a>", wxMpXmlMessage);
     }
