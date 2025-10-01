@@ -91,6 +91,15 @@ public class WebSocketServiceImpl implements WebSocketService {
         // get token by calling login module
         String token = loginService.login(uid);
         // respond to user
+        afterLoginSuccess(channel, user, token);
+    }
+
+    private void afterLoginSuccess(Channel channel, User user, String token) {
+        // save uid into WSChannelExtraDTO
+        WSChannelExtraDTO wsChannelExtraDTO = ONLINE_WS_MAP.get(channel);
+        wsChannelExtraDTO.setUid(user.getId());
+        // todo events related to user online
+        // respond to user
         sendMsg(channel, WebSocketAdapter.buildResp(user, token));
     }
 
@@ -99,6 +108,17 @@ public class WebSocketServiceImpl implements WebSocketService {
         Channel channel = WAIT_LOGIN_MAP.getIfPresent(code);
         if (Objects.isNull(channel)) { return; }
         sendMsg(channel, WebSocketAdapter.buildWaitAuthorizationResp());
+    }
+
+    @Override
+    public void authorize(Channel channel, String token) {
+        Long uid = loginService.getValidUid(token);
+        if (Objects.isNull(uid)) {
+            sendMsg(channel, WebSocketAdapter.buildInvalidTokenResp());
+        } else {
+            User user = userDao.getById(uid);
+            afterLoginSuccess(channel, user, token);
+        }
     }
 
     private void sendMsg(Channel channel, WSBasicResp<?> resp) {

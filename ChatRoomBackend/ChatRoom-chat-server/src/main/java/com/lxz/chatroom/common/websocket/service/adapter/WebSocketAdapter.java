@@ -38,4 +38,10 @@ public class WebSocketAdapter {
         resp.setType(WSRespTypeEnum.LOGIN_SCAN_SUCCESS.getType());
         return resp;
     }
+
+    public static WSBasicResp<?> buildInvalidTokenResp() {
+        WSBasicResp<Void> resp = new WSBasicResp<>();
+        resp.setType(WSRespTypeEnum.INVALID_TOKEN.getType());
+        return resp;
+    }
 }

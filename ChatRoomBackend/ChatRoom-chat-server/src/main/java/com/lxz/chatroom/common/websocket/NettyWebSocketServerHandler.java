@@ -72,6 +72,7 @@ public class NettyWebSocketServerHandler extends SimpleChannelInboundHandler<Tex
                 System.out.println("HEARTBEAT");
                 break;
             case AUTHORIZE:
+                webSocketService.authorize(ctx.channel(), wsBasicReq.getData());
                 System.out.println("AUTHORIZE");
         }
 
