@@ -67,7 +67,7 @@ public class NettyWebSocketServer {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
                         // close the connection if frontend failed to send a heartbeat to server in 30s
-                        pipeline.addLast(new IdleStateHandler(30, 0, 0));
+                        pipeline.addLast(new IdleStateHandler(120, 0, 0));
                         // 因为使用http协议，所以需要使用http的编码器，解码器
                         pipeline.addLast(new HttpServerCodec());
                         // 以块方式写，添加 chunkedWriter 处理器
@@ -78,6 +78,8 @@ public class NettyWebSocketServer {
                            2. 这就是为什么当浏览器发送大量数据时，就会发出多次 http请求的原因
                          */
                         pipeline.addLast(new HttpObjectAggregator(8192));
+                        // save the header
+                        pipeline.addLast(new MyHeaderCollectHandler());
                         //保存用户ip
 //                        pipeline.addLast(new HttpHeadersHandler());
                         /*

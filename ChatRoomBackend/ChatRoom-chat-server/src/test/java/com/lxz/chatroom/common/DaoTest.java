@@ -40,7 +40,7 @@ public class DaoTest {
 
     @Test
     public void jwtTest() {
-        System.out.println(jwtUtils.createToken(1L));
+        System.out.println(jwtUtils.createToken(10028L));
     }
 
     @Test
