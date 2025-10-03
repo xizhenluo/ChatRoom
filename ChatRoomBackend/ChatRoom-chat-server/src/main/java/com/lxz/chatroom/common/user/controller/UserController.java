@@ -1,18 +1,18 @@
 package com.lxz.chatroom.common.user.controller;
 
 
+import com.lxz.chatroom.common.common.domain.dto.RequestInfo;
 import com.lxz.chatroom.common.common.domain.vo.resp.ApiResult;
-import com.lxz.chatroom.common.common.interceptor.TokenInterceptor;
+import com.lxz.chatroom.common.common.utils.RequestHolder;
+import com.lxz.chatroom.common.user.domain.vo.req.ModifyNameReq;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
+import com.lxz.chatroom.common.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -26,11 +26,20 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/capi/user")
 @Api(tags = "user-relevant api") // swagger note
 public class UserController {
+    @Autowired
+    UserService userService;
+
     @GetMapping("/userInfo")
     @ApiOperation(value = "get user's info") // swagger note
-    public ApiResult<UserInfoResp> getUserInfo(HttpServletRequest request) {
-        System.out.println(request.getAttribute(TokenInterceptor.UID));
-        return null;
+    public ApiResult<UserInfoResp> getUserInfo() {
+        return ApiResult.success(userService.getUserInfo(RequestHolder.get().getUid()));
+    }
+
+    @PutMapping("/name")
+    @ApiOperation(value = "modify user's name")
+    public ApiResult<Void> modifyName(@Valid @RequestBody ModifyNameReq modifyNameReq) {
+        userService.modifyName(RequestHolder.get().getUid(), modifyNameReq.getName());
+        return ApiResult.success();
     }
 }
 

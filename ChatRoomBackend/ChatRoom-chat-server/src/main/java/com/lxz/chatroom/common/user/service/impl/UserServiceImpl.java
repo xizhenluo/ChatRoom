@@ -1,11 +1,18 @@
 package com.lxz.chatroom.common.user.service.impl;
 
+import com.lxz.chatroom.common.common.utils.AssertUtil;
+import com.lxz.chatroom.common.user.dao.UserBackpackDao;
 import com.lxz.chatroom.common.user.dao.UserDao;
 import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.user.domain.entity.UserBackpack;
+import com.lxz.chatroom.common.user.domain.enums.ItemEnum;
+import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 import com.lxz.chatroom.common.user.service.UserService;
+import com.lxz.chatroom.common.user.service.adapter.UserAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  * @author <a href="https://github.com/xizhenluo">LuoXizhen</a>
@@ -16,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private UserBackpackDao userBackpackDao;
 
     @Override
     @Transactional // ensure that the saving and events belong to one transaction
@@ -24,4 +33,34 @@ public class UserServiceImpl implements UserService {
         // todo register events
         return insertUser.getId();
     }
+
+    @Override
+    public UserInfoResp getUserInfo(Long uid) {
+        User user = userDao.getById(uid);
+        Integer modifyNameChance = userBackpackDao.getCountByValidItemId(uid, ItemEnum.MODIFY_NAME_CARD.getId());
+        return UserAdapter.buildUserInfo(user, modifyNameChance);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // for any type exception occurred in any step in this method, rollback
+    public void modifyName(Long uid, String name) {
+        // aspect 1: name can't have been existing
+        User oldUser = userDao.getByName(name);
+        AssertUtil.isEmpty(oldUser, "name has been existing"); // require oldUser must be null
+//        if (Objects.nonNull(oldUser)) {
+//            throw new BusinessException("name has been existing");
+//        }
+        // aspect 2: have rest chances
+        UserBackpack modifyNameCard = userBackpackDao.getFirstValidItem(uid, ItemEnum.MODIFY_NAME_CARD.getId());
+        AssertUtil.isNotEmpty(modifyNameCard, "you have run out your chances to modify name");
+        // then use the modifyNameCard (keep transactional)
+        boolean successfulUse = userBackpackDao.useItem(modifyNameCard);
+        if (successfulUse) {
+            // if used modifyNameCard successfully, then change the name
+            userDao.modifyName(uid, name);
+            // todo delete cache
+        }
+    }
+
+
 }

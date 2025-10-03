@@ -1,7 +1,9 @@
 package com.lxz.chatroom.common.user.service.adapter;
 
 import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import org.springframework.beans.BeanUtils;
 
 /**
  * @author <a href="https://github.com/xizhenluo">LuoXizhen</a>
@@ -20,5 +22,12 @@ public class UserAdapter {
         user.setAvatar(userInfo.getHeadImgUrl());
         user.setSex(userInfo.getSex());
         return user;
+    }
+
+    public static UserInfoResp buildUserInfo(User user, Integer modifyNameChance) {
+        UserInfoResp vo = new UserInfoResp();
+        BeanUtils.copyProperties(user, vo);
+        vo.setModifyNameChance(modifyNameChance);
+        return vo;
     }
 }

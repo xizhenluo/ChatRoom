@@ -2,6 +2,7 @@ package com.lxz.chatroom.common.user.service;
 
 import com.lxz.chatroom.common.user.domain.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 
 /**
  * <p>
@@ -13,4 +14,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserService {
     Long register(User insertUser);
+
+    UserInfoResp getUserInfo(Long uid);
+
+    void modifyName(Long uid, String name);
 }

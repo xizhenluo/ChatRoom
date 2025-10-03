@@ -9,6 +9,11 @@ import lombok.AllArgsConstructor;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author <a href="https://github.com/xizhenluo">LuoXizhen</a>
+ * @Description http error enum
+ * @date 2025/10/2
+ */
 @AllArgsConstructor
 public enum HttpErrorEnum {
     ACCESS_DENIED(401, "please re-login as expired");
