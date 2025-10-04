@@ -6,6 +6,8 @@ import com.lxz.chatroom.common.user.mapper.UserBackpackMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * user backpack 服务实现类
@@ -41,5 +43,13 @@ public class UserBackpackDao extends ServiceImpl<UserBackpackMapper, UserBackpac
                 .eq(UserBackpack::getStatus, YesOrNo.NO.getStatus())
                 .set(UserBackpack::getStatus, YesOrNo.YES.getStatus())
                 .update();
+    }
+
+    public List<UserBackpack> getByItemIds(Long uid, List<Long> collect) {
+        return lambdaQuery().eq(UserBackpack::getUid, uid) // belongs to uid
+                .eq(UserBackpack::getStatus, YesOrNo.YES.getStatus()) // valid
+                .in(UserBackpack::getItemId, collect) // in list
+                .list();
+
     }
 }

@@ -5,6 +5,7 @@ import com.lxz.chatroom.common.common.domain.dto.RequestInfo;
 import com.lxz.chatroom.common.common.domain.vo.resp.ApiResult;
 import com.lxz.chatroom.common.common.utils.RequestHolder;
 import com.lxz.chatroom.common.user.domain.vo.req.ModifyNameReq;
+import com.lxz.chatroom.common.user.domain.vo.resp.BadgeResp;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 import com.lxz.chatroom.common.user.service.UserService;
 import io.swagger.annotations.Api;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -40,6 +42,12 @@ public class UserController {
     public ApiResult<Void> modifyName(@Valid @RequestBody ModifyNameReq modifyNameReq) {
         userService.modifyName(RequestHolder.get().getUid(), modifyNameReq.getName());
         return ApiResult.success();
+    }
+
+    @GetMapping("/badges")
+    @ApiOperation(value = "get list of availabe badges")
+    public ApiResult<List<BadgeResp>> getBadges() {
+        return ApiResult.success(userService.getBadges(RequestHolder.get().getUid()));
     }
 }
 

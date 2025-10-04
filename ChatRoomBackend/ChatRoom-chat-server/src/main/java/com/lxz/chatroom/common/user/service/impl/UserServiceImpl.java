@@ -1,17 +1,26 @@
 package com.lxz.chatroom.common.user.service.impl;
 
 import com.lxz.chatroom.common.common.utils.AssertUtil;
+import com.lxz.chatroom.common.user.dao.ItemConfigDao;
 import com.lxz.chatroom.common.user.dao.UserBackpackDao;
 import com.lxz.chatroom.common.user.dao.UserDao;
+import com.lxz.chatroom.common.user.domain.entity.ItemConfig;
 import com.lxz.chatroom.common.user.domain.entity.User;
 import com.lxz.chatroom.common.user.domain.entity.UserBackpack;
 import com.lxz.chatroom.common.user.domain.enums.ItemEnum;
+import com.lxz.chatroom.common.user.domain.enums.ItemTypeEnum;
+import com.lxz.chatroom.common.user.domain.vo.resp.BadgeResp;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 import com.lxz.chatroom.common.user.service.UserService;
 import com.lxz.chatroom.common.user.service.adapter.UserAdapter;
+import com.lxz.chatroom.common.user.service.cache.ItemCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -25,6 +34,10 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     @Autowired
     private UserBackpackDao userBackpackDao;
+    @Autowired
+    private ItemCache itemCache;
+    @Autowired
+    private ItemConfigDao itemConfigDao;
 
     @Override
     @Transactional // ensure that the saving and events belong to one transaction
@@ -60,6 +73,18 @@ public class UserServiceImpl implements UserService {
             userDao.modifyName(uid, name);
             // todo delete cache
         }
+    }
+
+    @Override
+    public List<BadgeResp> getBadges(Long uid) {
+        // enquire all badges
+        List<ItemConfig> badges = itemConfigDao.getByType(ItemTypeEnum.BADGE.getType());
+        // enquire all items hold by uid
+        List<UserBackpack> backpacks = userBackpackDao.getByItemIds(uid, badges.stream().map(ItemConfig::getId).collect(Collectors.toList()));
+        // enquire the badge being equipped currently by uid
+        User user = userDao.getById(uid);
+
+        return UserAdapter.buildBadgeResp(badges, backpacks, user);
     }
 
 

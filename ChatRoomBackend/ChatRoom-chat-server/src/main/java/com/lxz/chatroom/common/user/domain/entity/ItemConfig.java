@@ -46,8 +46,8 @@ public class ItemConfig implements Serializable {
     /**
      * function description
      */
-    @TableField("describe")
-    private String describe;
+    @TableField("description")
+    private String description;
 
     /**
      * createtime

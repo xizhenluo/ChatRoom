@@ -1,6 +1,5 @@
 package com.lxz.chatroom.common.user.domain.vo.resp;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
