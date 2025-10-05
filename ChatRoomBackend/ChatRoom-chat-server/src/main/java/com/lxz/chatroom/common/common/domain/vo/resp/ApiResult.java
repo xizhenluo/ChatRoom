@@ -1,5 +1,6 @@
 package com.lxz.chatroom.common.common.domain.vo.resp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lxz.chatroom.common.common.exception.ErrorEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("basic response body")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiResult<T> {
     @ApiModelProperty("success flag: true or false")
     private Boolean success;

@@ -1,6 +1,7 @@
 package com.lxz.chatroom.common.user.service.impl;
 
 import com.lxz.chatroom.common.common.annotation.RedissonLock;
+import com.lxz.chatroom.common.common.event.UserRegisterEvent;
 import com.lxz.chatroom.common.common.utils.AssertUtil;
 import com.lxz.chatroom.common.user.dao.ItemConfigDao;
 import com.lxz.chatroom.common.user.dao.UserBackpackDao;
@@ -16,6 +17,7 @@ import com.lxz.chatroom.common.user.service.UserService;
 import com.lxz.chatroom.common.user.service.adapter.UserAdapter;
 import com.lxz.chatroom.common.user.service.cache.ItemCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,12 +40,15 @@ public class UserServiceImpl implements UserService {
     private ItemCache itemCache;
     @Autowired
     private ItemConfigDao itemConfigDao;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional // ensure that the saving and events belong to one transaction
     public Long register(User insertUser) {
         userDao.save(insertUser);
-        // todo register events
+        // register events: allocate name card
+        applicationEventPublisher.publishEvent(new UserRegisterEvent(this, insertUser));
         return insertUser.getId();
     }
 

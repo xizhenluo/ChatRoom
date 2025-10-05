@@ -10,6 +10,7 @@ import io.netty.util.AttributeKey;
  * @date 2025/10/2
  */
 public class NettyUtil {
+    public static final AttributeKey<String> IP = AttributeKey.valueOf("ip");
     public static AttributeKey<String> TOKEN = AttributeKey.valueOf("token");
 
     public static <T> void setAttr(Channel channel, AttributeKey<T> key, T value) {

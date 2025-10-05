@@ -10,11 +10,11 @@ import org.springframework.context.ApplicationEvent;
  * @date 2025/10/5
  */
 @Getter
-public class UserRegisterEvent extends ApplicationEvent {
+public class UserOnlineEvent extends ApplicationEvent {
     private User user;
 
-    public UserRegisterEvent(Object source, User user) {
-        super(source); // source means the publisher of event, normally use 'this' when constructing
+    public UserOnlineEvent(Object source, User user) {
+        super(source);
         this.user = user;
     }
 }

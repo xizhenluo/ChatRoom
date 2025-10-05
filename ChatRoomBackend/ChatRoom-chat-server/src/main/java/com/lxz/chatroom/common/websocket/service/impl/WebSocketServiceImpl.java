@@ -4,9 +4,12 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.lxz.chatroom.common.common.event.UserOnlineEvent;
 import com.lxz.chatroom.common.user.dao.UserDao;
+import com.lxz.chatroom.common.user.domain.entity.IpInfo;
 import com.lxz.chatroom.common.user.domain.entity.User;
 import com.lxz.chatroom.common.user.service.LoginService;
+import com.lxz.chatroom.common.websocket.NettyUtil;
 import com.lxz.chatroom.common.websocket.domain.dto.WSChannelExtraDTO;
 import com.lxz.chatroom.common.websocket.domain.enums.WSRespTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBasicResp;
@@ -19,10 +22,12 @@ import lombok.SneakyThrows;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,6 +62,9 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public void connect(Channel channel) {
@@ -98,9 +106,12 @@ public class WebSocketServiceImpl implements WebSocketService {
         // save uid into WSChannelExtraDTO
         WSChannelExtraDTO wsChannelExtraDTO = ONLINE_WS_MAP.get(channel);
         wsChannelExtraDTO.setUid(user.getId());
-        // todo events related to user online
         // respond to user
         sendMsg(channel, WebSocketAdapter.buildResp(user, token));
+        // publish event related to user online
+        user.setLastOptTime(new Date());
+        user.refreshIp(NettyUtil.getAttr(channel, NettyUtil.IP));
+        eventPublisher.publishEvent(new UserOnlineEvent(this, user));
     }
 
     @Override
