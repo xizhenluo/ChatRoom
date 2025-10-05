@@ -1,5 +1,6 @@
 package com.lxz.chatroom.common.user.service.impl;
 
+import com.lxz.chatroom.common.common.annotation.RedissonLock;
 import com.lxz.chatroom.common.common.utils.AssertUtil;
 import com.lxz.chatroom.common.user.dao.ItemConfigDao;
 import com.lxz.chatroom.common.user.dao.UserBackpackDao;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,15 +55,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @RedissonLock(key = "#uid")
     @Transactional(rollbackFor = Exception.class) // for any type exception occurred in any step in this method, rollback
     public void modifyName(Long uid, String name) {
-        // aspect 1: name can't have been existing
+        // check 1: name can't have been existing
         User oldUser = userDao.getByName(name);
         AssertUtil.isEmpty(oldUser, "name has been existing"); // require oldUser must be null
 //        if (Objects.nonNull(oldUser)) {
 //            throw new BusinessException("name has been existing");
 //        }
-        // aspect 2: have rest chances
+        // check 2: have rest chances
         UserBackpack modifyNameCard = userBackpackDao.getFirstValidItem(uid, ItemEnum.MODIFY_NAME_CARD.getId());
         AssertUtil.isNotEmpty(modifyNameCard, "you have run out your chances to modify name");
         // then use the modifyNameCard (keep transactional)
@@ -78,13 +79,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<BadgeResp> getBadges(Long uid) {
         // enquire all badges
-        List<ItemConfig> badges = itemConfigDao.getByType(ItemTypeEnum.BADGE.getType());
+        List<ItemConfig> badges = itemCache.getByType(ItemTypeEnum.BADGE.getType());
         // enquire all items hold by uid
         List<UserBackpack> backpacks = userBackpackDao.getByItemIds(uid, badges.stream().map(ItemConfig::getId).collect(Collectors.toList()));
         // enquire the badge being equipped currently by uid
         User user = userDao.getById(uid);
 
         return UserAdapter.buildBadgeResp(badges, backpacks, user);
+    }
+
+    @Override
+    public void equipBadge(Long uid, Long itemId) {
+        // ensure target itemId is owned
+        UserBackpack item = userBackpackDao.getFirstValidItem(uid, itemId);
+        AssertUtil.isNotEmpty(item, "you haven't owned this badge yet");
+        // ensure this owned item is badge
+        ItemConfig itemConfig = itemConfigDao.getById(item.getItemId());
+        AssertUtil.equal(itemConfig.getType(), ItemTypeEnum.BADGE.getType(), "only badges can be equipped");
+        // equip badge
+        userDao.equipBadge(uid, itemId);
     }
 
 

@@ -4,6 +4,7 @@ package com.lxz.chatroom.common.user.controller;
 import com.lxz.chatroom.common.common.domain.dto.RequestInfo;
 import com.lxz.chatroom.common.common.domain.vo.resp.ApiResult;
 import com.lxz.chatroom.common.common.utils.RequestHolder;
+import com.lxz.chatroom.common.user.domain.vo.req.EquipBadgeReq;
 import com.lxz.chatroom.common.user.domain.vo.req.ModifyNameReq;
 import com.lxz.chatroom.common.user.domain.vo.resp.BadgeResp;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
@@ -37,7 +38,7 @@ public class UserController {
         return ApiResult.success(userService.getUserInfo(RequestHolder.get().getUid()));
     }
 
-    @PutMapping("/name")
+    @PutMapping("/modifyName")
     @ApiOperation(value = "modify user's name")
     public ApiResult<Void> modifyName(@Valid @RequestBody ModifyNameReq modifyNameReq) {
         userService.modifyName(RequestHolder.get().getUid(), modifyNameReq.getName());
@@ -48,6 +49,13 @@ public class UserController {
     @ApiOperation(value = "get list of availabe badges")
     public ApiResult<List<BadgeResp>> getBadges() {
         return ApiResult.success(userService.getBadges(RequestHolder.get().getUid()));
+    }
+
+    @PutMapping("/equipBadge")
+    @ApiOperation(value = "equip a badge")
+    public ApiResult<Void> equipBadge(@Valid @RequestBody EquipBadgeReq equipBadgeReq) {
+        userService.equipBadge(RequestHolder.get().getUid(), equipBadgeReq.getItemId());
+        return ApiResult.success();
     }
 }
 

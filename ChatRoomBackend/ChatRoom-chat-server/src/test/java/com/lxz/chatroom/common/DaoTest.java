@@ -1,20 +1,18 @@
 package com.lxz.chatroom.common;
 
 import com.lxz.chatroom.common.common.utils.JwtUtils;
-import com.lxz.chatroom.common.common.utils.RedisUtils;
+import com.lxz.chatroom.common.user.domain.enums.IdempotentEnum;
+import com.lxz.chatroom.common.user.domain.enums.ItemEnum;
 import com.lxz.chatroom.common.user.service.LoginService;
+import com.lxz.chatroom.common.user.service.UserBackpackService;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +35,8 @@ public class DaoTest {
     private LoginService loginService;
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    @Autowired
+    private UserBackpackService userBackpackService;
 
     @Test
     public void jwtTest() {
@@ -74,5 +74,10 @@ public class DaoTest {
         WxMpQrCodeTicket wxMpQrCodeTicket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket(1, 1000);
         String url = wxMpQrCodeTicket.getUrl();
         System.out.println(url);
+    }
+
+    @Test
+    public void acquireItemTest() {
+        userBackpackService.acquireItem(11007L, ItemEnum.REG_TOP10_BADGE.getId(), IdempotentEnum.UID, 11007L + "top10 badge");
     }
 }

@@ -8,8 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import java.util.Date;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 /**
  * <p>
@@ -22,6 +21,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("user_backpack")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserBackpack implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,7 +31,7 @@ public class UserBackpack implements Serializable {
     /**
      * id
      */
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -45,7 +47,7 @@ public class UserBackpack implements Serializable {
     private Long itemId;
 
     /**
-     * use status 0.to be used 1.used
+     * use status 0.unused 1.used
      */
     @TableField("status")
     private Integer status;

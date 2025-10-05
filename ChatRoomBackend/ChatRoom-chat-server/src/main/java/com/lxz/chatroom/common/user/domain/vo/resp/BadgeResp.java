@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class BadgeResp {
     @ApiModelProperty("badge id")
-    private Integer id;
+    private Long id;
     @ApiModelProperty("badge image")
     private String img;
     @ApiModelProperty("badge description")

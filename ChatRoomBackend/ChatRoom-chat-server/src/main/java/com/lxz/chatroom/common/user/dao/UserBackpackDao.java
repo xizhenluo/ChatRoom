@@ -47,9 +47,14 @@ public class UserBackpackDao extends ServiceImpl<UserBackpackMapper, UserBackpac
 
     public List<UserBackpack> getByItemIds(Long uid, List<Long> collect) {
         return lambdaQuery().eq(UserBackpack::getUid, uid) // belongs to uid
-                .eq(UserBackpack::getStatus, YesOrNo.YES.getStatus()) // valid
+                .eq(UserBackpack::getStatus, YesOrNo.NO.getStatus()) // valid
                 .in(UserBackpack::getItemId, collect) // in list
                 .list();
 
+    }
+
+    public UserBackpack getByIdemPotent(String idempotent) {
+        return lambdaQuery().eq(UserBackpack::getIdempotent, idempotent)
+                .one();
     }
 }

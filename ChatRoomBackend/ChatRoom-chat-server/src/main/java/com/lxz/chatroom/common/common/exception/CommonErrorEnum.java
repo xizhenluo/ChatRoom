@@ -13,7 +13,8 @@ import lombok.Getter;
 public enum CommonErrorEnum implements ErrorEnum {
     SYSTEM_ERROR(-1, "something wrong with the system"),
     PARAM_INVALID(-2, "parameter validation failed"),
-    BUSINESS_ERROR(0, "{0}"); // if no 0, MessageFormat will error
+    BUSINESS_ERROR(0, "{0}"), // if no 0, MessageFormat will error
+    LOCK_LIMIT(-3, "too frequency request");
 
     private final Integer errorCode;
     private final String errorMsg;

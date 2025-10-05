@@ -24,7 +24,7 @@ public class CacheConfig extends CachingConfigurerSupport {
     @Primary
     public CacheManager caffeineCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(); // implementation: caffeine
-        // sheme 1(mostly used)：specially designed Cache
+        // scheme 1(mostly used)：specially designed Cache
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(5, TimeUnit.MINUTES)
                 .initialCapacity(100)
