@@ -31,7 +31,7 @@ public class User implements Serializable {
     /**
      * 用户id
      */
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -84,6 +84,7 @@ public class User implements Serializable {
 
     /**
      * 使用状态 0.正常 1拉黑
+     * @see com.lxz.chatroom.common.common.domain.enums.YesOrNo
      */
     @TableField("status")
     private Integer status;

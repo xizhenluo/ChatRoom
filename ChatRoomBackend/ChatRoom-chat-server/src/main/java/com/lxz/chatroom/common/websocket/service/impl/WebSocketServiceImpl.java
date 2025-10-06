@@ -6,14 +6,13 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.lxz.chatroom.common.common.event.UserOnlineEvent;
 import com.lxz.chatroom.common.user.dao.UserDao;
-import com.lxz.chatroom.common.user.domain.entity.IpInfo;
 import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.user.domain.enums.RoleEnum;
 import com.lxz.chatroom.common.user.service.LoginService;
+import com.lxz.chatroom.common.user.service.RoleService;
 import com.lxz.chatroom.common.websocket.NettyUtil;
 import com.lxz.chatroom.common.websocket.domain.dto.WSChannelExtraDTO;
-import com.lxz.chatroom.common.websocket.domain.enums.WSRespTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBasicResp;
-import com.lxz.chatroom.common.websocket.domain.vo.resp.WSLoginUrl;
 import com.lxz.chatroom.common.websocket.service.WebSocketService;
 import com.lxz.chatroom.common.websocket.service.adapter.WebSocketAdapter;
 import io.netty.channel.Channel;
@@ -24,6 +23,7 @@ import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -66,6 +66,12 @@ public class WebSocketServiceImpl implements WebSocketService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
     @Override
     public void connect(Channel channel) {
         ONLINE_WS_MAP.put(channel, new WSChannelExtraDTO());
@@ -107,7 +113,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         WSChannelExtraDTO wsChannelExtraDTO = ONLINE_WS_MAP.get(channel);
         wsChannelExtraDTO.setUid(user.getId());
         // respond to user
-        sendMsg(channel, WebSocketAdapter.buildResp(user, token));
+        sendMsg(channel, WebSocketAdapter.buildLoginSuccessResp(user, token, roleService.hasRower(user.getId(), RoleEnum.CHATROOM_MANAGER)));
         // publish event related to user online
         user.setLastOptTime(new Date());
         user.refreshIp(NettyUtil.getAttr(channel, NettyUtil.IP));
@@ -130,6 +136,15 @@ public class WebSocketServiceImpl implements WebSocketService {
             User user = userDao.getById(uid);
             afterLoginSuccess(channel, user, token);
         }
+    }
+
+    @Override
+    public void broadcastMsg(WSBasicResp<?> resp) {
+        ONLINE_WS_MAP.forEach((channel, wsChannelExtraDTO) -> {
+            threadPoolTaskExecutor.execute(() -> {
+                sendMsg(channel, resp);
+            });
+        });
     }
 
     private void sendMsg(Channel channel, WSBasicResp<?> resp) {

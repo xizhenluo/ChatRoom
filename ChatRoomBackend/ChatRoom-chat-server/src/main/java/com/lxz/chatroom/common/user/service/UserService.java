@@ -1,6 +1,7 @@
 package com.lxz.chatroom.common.user.service;
 
 import com.lxz.chatroom.common.user.domain.entity.User;
+import com.lxz.chatroom.common.user.domain.vo.req.BlackReq;
 import com.lxz.chatroom.common.user.domain.vo.resp.BadgeResp;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
 
@@ -24,4 +25,6 @@ public interface UserService {
     List<BadgeResp> getBadges(Long uid);
 
     void equipBadge(Long uid, Long itemId);
+
+    void black(BlackReq blackReq);
 }

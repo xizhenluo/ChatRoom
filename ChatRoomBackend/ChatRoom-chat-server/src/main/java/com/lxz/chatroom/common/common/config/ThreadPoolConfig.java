@@ -49,7 +49,21 @@ public class ThreadPoolConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(200);
         executor.setThreadNamePrefix("chatroom-executor-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());//满了调用线程执行，认为重要任务
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());// let the caller-thread to do if full
+        executor.setThreadFactory(new MyThreadFactory(executor)); // use Decorator Pattern here to expand functions based on given class
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(WS_EXECUTOR)
+    public ThreadPoolTaskExecutor websocketExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(true); // elegant shutdown
+        executor.setCorePoolSize(16); // should be larger because mainly I/O
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("websocket-executor-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());// discard if full
         executor.setThreadFactory(new MyThreadFactory(executor)); // use Decorator Pattern here to expand functions based on given class
         executor.initialize();
         return executor;

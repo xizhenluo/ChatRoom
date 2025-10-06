@@ -1,5 +1,6 @@
 package com.lxz.chatroom.common.common.config;
 
+import com.lxz.chatroom.common.common.interceptor.BlackInterceptor;
 import com.lxz.chatroom.common.common.interceptor.CollectorInterceptor;
 import com.lxz.chatroom.common.common.interceptor.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,17 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Autowired
     CollectorInterceptor collectorInterceptor;
 
+    @Autowired
+    BlackInterceptor blackInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // order matters!!!
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/capi/**"); // active to paths starts with /capi/
         registry.addInterceptor(collectorInterceptor)
+                .addPathPatterns("/capi/**");
+        registry.addInterceptor(blackInterceptor) // should be last or can't get requestInfo
                 .addPathPatterns("/capi/**");
     }
 }

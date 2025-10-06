@@ -1,5 +1,6 @@
 package com.lxz.chatroom.common.user.dao;
 
+import com.lxz.chatroom.common.common.domain.enums.YesOrNo;
 import com.lxz.chatroom.common.user.domain.entity.User;
 import com.lxz.chatroom.common.user.mapper.UserMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -39,6 +40,13 @@ public class UserDao extends ServiceImpl<UserMapper, User> {
         lambdaUpdate()
                 .eq(User::getId, uid)
                 .set(User::getItemId, itemId)
+                .update();
+    }
+
+    public void invalidUid(Long id) {
+        lambdaUpdate()
+                .eq(User::getId, id)
+                .set(User::getStatus, YesOrNo.YES.getStatus())
                 .update();
     }
 }

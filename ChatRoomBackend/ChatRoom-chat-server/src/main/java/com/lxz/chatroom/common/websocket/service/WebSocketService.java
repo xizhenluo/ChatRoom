@@ -1,5 +1,6 @@
 package com.lxz.chatroom.common.websocket.service;
 
+import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBasicResp;
 import io.netty.channel.Channel;
 
 /**
@@ -19,4 +20,6 @@ public interface WebSocketService {
     void waitAuthorization(Integer code);
 
     void authorize(Channel channel, String token);
+
+    void broadcastMsg(WSBasicResp<?> resp);
 }

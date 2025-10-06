@@ -3,11 +3,15 @@ package com.lxz.chatroom.common.user.controller;
 
 import com.lxz.chatroom.common.common.domain.dto.RequestInfo;
 import com.lxz.chatroom.common.common.domain.vo.resp.ApiResult;
+import com.lxz.chatroom.common.common.utils.AssertUtil;
 import com.lxz.chatroom.common.common.utils.RequestHolder;
+import com.lxz.chatroom.common.user.domain.enums.RoleEnum;
+import com.lxz.chatroom.common.user.domain.vo.req.BlackReq;
 import com.lxz.chatroom.common.user.domain.vo.req.EquipBadgeReq;
 import com.lxz.chatroom.common.user.domain.vo.req.ModifyNameReq;
 import com.lxz.chatroom.common.user.domain.vo.resp.BadgeResp;
 import com.lxz.chatroom.common.user.domain.vo.resp.UserInfoResp;
+import com.lxz.chatroom.common.user.service.RoleService;
 import com.lxz.chatroom.common.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +35,8 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
+    @Autowired
+    RoleService roleService;
 
     @GetMapping("/userInfo")
     @ApiOperation(value = "get user's info") // swagger note
@@ -55,6 +61,16 @@ public class UserController {
     @ApiOperation(value = "equip a badge")
     public ApiResult<Void> equipBadge(@Valid @RequestBody EquipBadgeReq equipBadgeReq) {
         userService.equipBadge(RequestHolder.get().getUid(), equipBadgeReq.getItemId());
+        return ApiResult.success();
+    }
+
+    @PutMapping("/black")
+    @ApiOperation(value = "black a user")
+    public ApiResult<Void> black(@Valid @RequestBody BlackReq blackReq) {
+        Long uid = RequestHolder.get().getUid();
+        boolean power = roleService.hasRower(uid, RoleEnum.ADMIN);
+        AssertUtil.isTrue(power, "you have no power to black a user");
+        userService.black(blackReq);
         return ApiResult.success();
     }
 }

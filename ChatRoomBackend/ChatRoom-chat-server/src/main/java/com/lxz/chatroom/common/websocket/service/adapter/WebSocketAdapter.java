@@ -1,8 +1,10 @@
 package com.lxz.chatroom.common.websocket.service.adapter;
 
+import com.lxz.chatroom.common.common.domain.enums.YesOrNo;
 import com.lxz.chatroom.common.user.domain.entity.User;
 import com.lxz.chatroom.common.websocket.domain.enums.WSRespTypeEnum;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBasicResp;
+import com.lxz.chatroom.common.websocket.domain.vo.resp.WSBlack;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSLoginSuccess;
 import com.lxz.chatroom.common.websocket.domain.vo.resp.WSLoginUrl;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
@@ -20,7 +22,7 @@ public class WebSocketAdapter {
         return resp;
     }
 
-    public static WSBasicResp<?> buildResp(User user, String token) {
+    public static WSBasicResp<?> buildLoginSuccessResp(User user, String token, Boolean hasPower) {
         WSBasicResp<WSLoginSuccess> resp = new WSBasicResp<>();
         resp.setType(WSRespTypeEnum.LOGIN_SUCCESS.getType());
         WSLoginSuccess loginSuccess = WSLoginSuccess.builder()
@@ -28,6 +30,7 @@ public class WebSocketAdapter {
                 .avatar(user.getAvatar())
                 .name(user.getName())
                 .token(token)
+                .power(hasPower ? YesOrNo.YES.getStatus() : YesOrNo.NO.getStatus())
                 .build();
         resp.setData(loginSuccess);
         return resp;
@@ -42,6 +45,16 @@ public class WebSocketAdapter {
     public static WSBasicResp<?> buildInvalidTokenResp() {
         WSBasicResp<Void> resp = new WSBasicResp<>();
         resp.setType(WSRespTypeEnum.INVALID_TOKEN.getType());
+        return resp;
+    }
+
+    public static WSBasicResp<?> buildBlackResp(User user) {
+        WSBasicResp<WSBlack> resp = new WSBasicResp<>();
+        resp.setType(WSRespTypeEnum.BLACK.getType());
+        WSBlack wsBlack = WSBlack.builder()
+                .uid(user.getId())
+                .build();
+        resp.setData(wsBlack);
         return resp;
     }
 }
